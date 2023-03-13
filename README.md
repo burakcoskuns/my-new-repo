@@ -23,3 +23,26 @@ Pipeline'in istedigin kismini es gecebilir veya kendince daha dogru oldugunu dus
 NOT: Dependency'lerin kurulmasi icin proje dizininde `yarn` komutunun calistirilmasi gerekiyor.
 
 NOT: Uygulama `yarn start:prod` komutu ile ayaga 3000 portunda ayaga kalkiyor.
+
+DevOps Project from Atolye15
+Your assessment has been created.
+Git Clone URL
+https://git.codebie.com/atolye15/mI3nksUh2JSdLwlD.git
+
+Git Username
+UwtCFsn5JhQifRUB
+
+Git Password
+9QKx1MR_9o5AVnPr
+
+You can clone this assessment via git clone command. Don't forget that, the company will be notified after you clone the repository.
+You can push only one time. Please push your changes when you completed the assessment.
+Assessment URL
+https://candidate.codebie.com/assessment/mI3nksUh2JSdLwlD
+
+Companies code review result will be available in this URL after you push back your solution.
+
+####
+
+Clone repo;
+git clone https://UwtCFsn5JhQifRUB:9QKx1MR_9o5AVnPr@git.codebie.com/atolye15/mI3nksUh2JSdLwlD.git

@@ -1,0 +1,65 @@
+version: 2.1
+jobs:
+  build:
+    working_directory: ~/app
+    docker:
+      - image: circleci/node:14.18.1
+    steps:
+      - checkout
+      - run: yarn
+      - run:
+          name: Lint
+          command: yarn lint
+      - run:
+          name: Format Check
+          command: yarn format:check
+      - run:
+          name: Unit Tests
+          command: yarn test
+      - run:
+          name: Coverage Check
+          command: yarn test:cov
+      - run:
+          name: E2E Tests
+          command: yarn test:e2e
+      - run:
+          name: Build Docker Image
+          command: |
+            echo 'Building Docker Image...'
+            docker build -t gcr.io/burak-coskun/my-image:$CIRCLE_SHA1 .
+            echo 'Pushing Docker Image...'
+            echo $GCR_KEY_FILE_CONTENT > key.json
+            gcloud auth activate-service-account --key-file=key.json
+            gcloud auth configure-docker
+            docker push gcr.io/burak-coskun/my-image:$CIRCLE_SHA1
+      - deploy:
+          name: Deploy to Stage
+          command: |
+            echo 'Deploying to Stage...'
+            echo $K8S_STAGE_CONFIG | base64 --decode > ./k8s-stage-config.json
+            echo $K8S_STAGE_SECRETS | base64 --decode > ./k8s-stage-secrets.json
+            gcloud auth activate-service-account --key-file=key.json
+            gcloud container clusters get-credentials burak-coskun-cluster --zone=europe-west1-b --project=burak-coskun-project
+            kubectl config use-context burak-coskun-cluster
+            kubectl config set-context --current --namespace=stage
+            kubectl apply -f ./k8s-stage-config.json
+            kubectl apply -f ./k8s-stage-secrets.json
+  deploy-to-prod:
+    requires:
+      - build
+    filters:
+      branches:
+        only: master
+    steps:
+      - run:
+          name: Deploy to Prod
+          command: |
+            echo 'Deploying to Prod...'
+            echo $K8S_PROD_CONFIG | base64 --decode > ./k8s-prod-config.json
+            echo $K8S_PROD_SECRETS | base64 --decode > ./k8s-prod-secrets.json
+            gcloud auth activate-service-account --key-file=key.json
+            gcloud container clusters get-credentials burak-coskun-cluster --zone=europe-west1-b --project=burak-coskun-project
+            kubectl config use-context burak-coskun-cluster
+            kubectl config set-context --current --namespace=production
+            kubectl apply -f ./k8s-prod-config.json
+            kubectl apply -f ./k8s-prod-secrets.json
