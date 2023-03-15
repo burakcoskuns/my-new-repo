@@ -1,9 +1,13 @@
 version: 2.1
-jobs:
-  build:
-    working_directory: ~/app
+executors:
+  docker-executor:
     docker:
       - image: circleci/node:14.18.1
+
+jobs:
+  build:
+    executor: docker-executor
+    working_directory: ~/app
     steps:
       - checkout
       - run: yarn
@@ -45,8 +49,7 @@ jobs:
             kubectl apply -f ./k8s-stage-config.json
             kubectl apply -f ./k8s-stage-secrets.json
   deploy-to-prod:
-    docker:
-      - image: circleci/node:14.18.1
+    executor: docker-executor
     steps:
       - run:
           name: Deploy to Prod
