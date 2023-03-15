@@ -45,11 +45,8 @@ jobs:
             kubectl apply -f ./k8s-stage-config.json
             kubectl apply -f ./k8s-stage-secrets.json
   deploy-to-prod:
-    requires:
-      - build
-    filters:
-      branches:
-        only: master
+    docker:
+      - image: circleci/node:14.18.1
     steps:
       - run:
           name: Deploy to Prod
@@ -63,3 +60,15 @@ jobs:
             kubectl config set-context --current --namespace=production
             kubectl apply -f ./k8s-prod-config.json
             kubectl apply -f ./k8s-prod-secrets.json
+
+workflows:
+  version: 2
+  build-deploy:
+    jobs:
+      - build
+      - deploy-to-prod:
+          requires:
+            - build
+          filters:
+            branches:
+              only: master
