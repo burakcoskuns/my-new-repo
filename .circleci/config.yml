@@ -1,15 +1,20 @@
 version: 2.1
 executors:
-  docker-executor:
-    docker:
-      - image: circleci/node:14.18.1
+  machine-executor:
+    machine:
+      image: ubuntu-2004:202107-02
+      docker_layer_caching: true
 
 jobs:
   build:
-    executor: docker-executor
+    executor: machine-executor
     working_directory: ~/app
     steps:
       - checkout
+      - run: sudo apt-get update && sudo apt-get install -y curl
+      - run: curl -fsSL https://deb.nodesource.com/setup_14.x | sudo -E bash -
+      - run: sudo apt-get install -y nodejs
+      - run: sudo npm install -g yarn
       - run: yarn
       - run:
           name: Lint
@@ -49,7 +54,7 @@ jobs:
             kubectl apply -f ./k8s-stage-config.json
             kubectl apply -f ./k8s-stage-secrets.json
   deploy-to-prod:
-    executor: docker-executor
+    executor: machine-executor
     steps:
       - run:
           name: Deploy to Prod
@@ -63,6 +68,7 @@ jobs:
             kubectl config set-context --current --namespace=production
             kubectl apply -f ./k8s-prod-config.json
             kubectl apply -f ./k8s-prod-secrets.json
+
 
 workflows:
   version: 2
